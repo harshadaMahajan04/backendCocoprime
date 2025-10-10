@@ -17,32 +17,32 @@ const productSchema = new mongoose.Schema({
         required: [true, 'Product price is required'],
         min: [0, 'Price cannot be negative']
     },
-    discountPrice: {
-        type: Number,
-        min: [0, 'Discount price cannot be negative'],
-        validate: {
-            validator: function(value) {
-                return !value || value < this.price;
-            },
-            message: 'Discount price must be less than original price'
-        }
-    },
-    category: {
-        type: String,
-        required: [true, 'Product category is required'],
-        enum: {
-            values: ['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Beauty', 'Toys', 'Other'],
-            message: 'Please select a valid category'
-        }
-    },
-    subcategory: {
-        type: String,
-        trim: true
-    },
-    brand: {
-        type: String,
-        trim: true
-    },
+    // discountPrice: {
+    //     type: Number,
+    //     min: [0, 'Discount price cannot be negative'],
+    //     validate: {
+    //         validator: function(value) {
+    //             return !value || value < this.price;
+    //         },
+    //         message: 'Discount price must be less than original price'
+    //     }
+    // },
+    // category: {
+    //     type: String,
+    //     required: [true, 'Product category is required'],
+    //     enum: {
+    //         values: ['Electronics', 'Clothing', 'Books', 'Home', 'Sports', 'Beauty', 'Toys', 'Other'],
+    //         message: 'Please select a valid category'
+    //     }
+    // },
+    // subcategory: {
+    //     type: String,
+    //     trim: true
+    // },
+    // brand: {
+    //     type: String,
+    //     trim: true
+    // },
     stock: {
         type: Number,
         required: [true, 'Stock quantity is required'],
@@ -76,11 +76,11 @@ const productSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }
+    // createdBy: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'User',
+    //     required: true
+    // }
 }, {
     timestamps: true
 });

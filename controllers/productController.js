@@ -81,7 +81,8 @@ const getProduct = async (req, res, next) => {
         const product = await Product.findOne({ 
             _id: req.params.id, 
             isActive: true 
-        }).populate('createdBy', 'name email');
+        })
+    //   const product = await Product.findById(id);
 
         if (!product) {
             return res.status(404).json({
