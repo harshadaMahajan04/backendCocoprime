@@ -24,6 +24,9 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+// Serve static files (images)
+app.use("/img", express.static("public/img"));
+
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
