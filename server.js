@@ -18,16 +18,19 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+
 // Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
-    credentials: true
+  origin: ["http://127.0.0.1:5500", "https://cocoprimeindustries.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 app.use(express.json());
-// Serve static files (images)
+app.use(express.urlencoded({ extended: true }));
 app.use("/img", express.static("public/img"));
 
-app.use(express.urlencoded({ extended: true }));
+
+
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -35,6 +38,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
+
 
 // Health check route
 app.get('/api/health', (req, res) => {
@@ -51,6 +55,8 @@ app.use((req, res, next) => {
         message: 'Route not found'
     });
 });
+
+
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
