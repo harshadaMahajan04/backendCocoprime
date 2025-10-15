@@ -56,8 +56,6 @@ app.use((req, res, next) => {
     });
 });
 
-
-
 // Error handling middleware (must be last)
 app.use(errorHandler);
 

@@ -4,30 +4,82 @@ const Product = require('../models/Product');
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
+// const getAllProducts = async (req, res, next) => {
+//     try {
+//         const page = parseInt(req.query.page) || 1;
+//         const limit = parseInt(req.query.limit) || 50;
+//         // const skip = (page - 1) * limit;
+
+//         // Build filter object
+//         let filter = { isActive: true };
+        
+//         if (req.query.category) {
+//             filter.category = req.query.category;
+//         }
+        
+//         if (req.query.subcategory) {
+//             filter.subcategory = req.query.subcategory;
+//         }
+        
+//         if (req.query.brand) {
+//             filter.brand = new RegExp(req.query.brand, 'i');
+//         }
+        
+//         if (req.query.search) {
+//             filter.$text = { $search: req.query.search };
+//         }
+
+//         // Price range filter
+//         if (req.query.minPrice || req.query.maxPrice) {
+//             filter.price = {};
+//             if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
+//             if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
+//         }
+
+//         // Build sort object
+//         let sort = {};
+//         if (req.query.sortBy) {
+//             const sortField = req.query.sortBy;
+//             const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+//             sort[sortField] = sortOrder;
+//         } else {
+//             sort = { createdAt: -1 }; // Default sort by newest
+//         }
+
+//         // Execute query
+//         const products = await Product.find(filter)
+//             .populate('createdBy', 'name email')
+//             .sort(sort)
+            
+
+//         const total = await Product.countDocuments(filter);
+
+//         res.json({
+//             success: true,
+//             data: {
+//                 products,
+//                 pagination: {
+//                     current: page,
+//                     pages: Math.ceil(total / limit),
+//                     total,
+//                     limit
+//                 }
+//             }
+//         });
+
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 const getAllProducts = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 50;
-        // const skip = (page - 1) * limit;
-
         // Build filter object
         let filter = { isActive: true };
         
-        if (req.query.category) {
-            filter.category = req.query.category;
-        }
-        
-        if (req.query.subcategory) {
-            filter.subcategory = req.query.subcategory;
-        }
-        
-        if (req.query.brand) {
-            filter.brand = new RegExp(req.query.brand, 'i');
-        }
-        
-        if (req.query.search) {
-            filter.$text = { $search: req.query.search };
-        }
+        if (req.query.category) filter.category = req.query.category;
+        if (req.query.subcategory) filter.subcategory = req.query.subcategory;
+        if (req.query.brand) filter.brand = new RegExp(req.query.brand, 'i');
+        if (req.query.search) filter.$text = { $search: req.query.search };
 
         // Price range filter
         if (req.query.minPrice || req.query.maxPrice) {
@@ -46,24 +98,35 @@ const getAllProducts = async (req, res, next) => {
             sort = { createdAt: -1 }; // Default sort by newest
         }
 
-        // Execute query
-        const products = await Product.find(filter)
-            .populate('createdBy', 'name email')
-            .sort(sort)
-            
+        // Check if frontend wants all products
+        const fetchAll = req.query.all === 'true';
 
+        let query = Product.find(filter)
+            .populate('createdBy', 'name email')
+            .sort(sort);
+
+        if (!fetchAll) {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 50;
+            const skip = (page - 1) * limit;
+            query = query.skip(skip).limit(limit);
+        }
+
+        const products = await query;
         const total = await Product.countDocuments(filter);
 
         res.json({
             success: true,
             data: {
                 products,
-                pagination: {
-                    current: page,
-                    pages: Math.ceil(total / limit),
-                    total,
-                    limit
-                }
+                pagination: fetchAll
+                    ? { current: 1, pages: 1, total, limit: total }
+                    : {
+                          current: parseInt(req.query.page) || 1,
+                          pages: Math.ceil(total / (parseInt(req.query.limit) || 50)),
+                          total,
+                          limit: parseInt(req.query.limit) || 50
+                      }
             }
         });
 
@@ -71,6 +134,7 @@ const getAllProducts = async (req, res, next) => {
         next(error);
     }
 };
+
 
 // @desc    Get single product
 // @route   GET /api/products/:id
